@@ -1,9 +1,5 @@
 package pageObject;
 
-import dataobject.FormRegistration;
-
-import java.util.List;
-
 public class DmcPage extends BasePage {
 
     private static final String DMC_TITLE =
@@ -22,8 +18,7 @@ public class DmcPage extends BasePage {
             "//*[contains(@name, 'userEmail')]//..//..//*[contains(@class, 'input__error text--small')]";
 
     public String getTitle() {
-        String title = label.getText(DMC_TITLE);
-        return title;
+        return label.getText(DMC_TITLE);
     }
 
     public void clickSendAppButton() {
@@ -34,21 +29,41 @@ public class DmcPage extends BasePage {
         return label.isVisible(LABEL_NAME);
     }
 
-    public void inputName(FormRegistration formRegistration) {
+    public void inputName(String name) {
         label.waitElement(MAIL_FIELD);
-        field.inputChars(NAME_FIELD, formRegistration.getName());
+        field.inputChars(NAME_FIELD, name);
     }
 
-    public void inputPhone(FormRegistration formRegistration) {
-        field.inputChars(PHONE_FIELD, formRegistration.getPhone());
+    public String getFormRegistrationNameField() {
+        return label.getValue(NAME_FIELD);
     }
 
-    public void inputMail(FormRegistration formRegistration) {
-        field.inputChars(MAIL_FIELD, formRegistration.getMail());
+    public void inputPhone(String phone) {
+        field.inputChars(PHONE_FIELD, phone);
     }
 
-    public void inputAddress(FormRegistration formRegistration) {
-        field.inputChars(ADDRESS_FILED, formRegistration.getAddress());
+    public String getFormRegistrationPhoneField() {
+        return label.getValue(PHONE_FIELD);
+    }
+
+    public String formatPhone(String phone) {
+        return "+7 (" + phone.substring(0, 3) + ") " + phone.substring(3, 6) + "-" + phone.substring(6);
+    }
+
+    public void inputMail(String mail) {
+        field.inputChars(MAIL_FIELD, mail);
+    }
+
+    public String getFormRegistrationMailField() {
+        return label.getValue(MAIL_FIELD);
+    }
+
+    public void inputAddress(String address) {
+        field.inputChars(ADDRESS_FILED, address);
+    }
+
+    public String getFormRegistrationAddressField() {
+        return label.getValue(ADDRESS_FILED);
     }
 
     public void clickAccept() {
@@ -57,11 +72,6 @@ public class DmcPage extends BasePage {
 
     public void clickSubmitButton() {
         button.clickButtonJs(SUBMIT_BUTTON);
-    }
-
-    public boolean isCorrectValue(FormRegistration formRegistration) {
-        List<String> list = label.getTextFromList(ALL_VALUE);
-        return list.equals(formRegistration.getListValue());
     }
 
     public String getEmailValidateMessage() {

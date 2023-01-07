@@ -1,29 +1,28 @@
 package test;
 
-import dataobject.FormRegistration;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import pageObject.DmcPage;
 import pageObject.StartPage;
 import webDriver.WebDriverCreate;
-
-import static org.junit.jupiter.api.RepeatedTest.LONG_DISPLAY_NAME;
 
 public class RgsTest {
 
     private final static String URL = "https://www.rgs.ru/";
     private StartPage startPage = new StartPage();
     private DmcPage dmcPage = new DmcPage();
-    private FormRegistration formRegistration = new FormRegistration();
 
     @BeforeEach
     void startTest() {
         WebDriverCreate.getDriver().get(URL);
     }
 
-    @Test
-    @RepeatedTest(name = LONG_DISPLAY_NAME, value = 3)
-    void testCase() {
+    @ParameterizedTest
+    @CsvFileSource(resources = "UserData.csv")
+    void testCase(String name, String phone, String mail, String address) {
         Assertions.assertTrue(startPage.isOpen(), "Стартовая страница не открылась");
 
         startPage.clickCompaniesButton();
@@ -37,12 +36,20 @@ public class RgsTest {
         dmcPage.clickSendAppButton();
         Assertions.assertTrue(dmcPage.isVisibleForm(), "Форма для заполнения не видима");
 
-        dmcPage.inputName(formRegistration);
-        dmcPage.inputPhone(formRegistration);
-        dmcPage.inputMail(formRegistration);
-        dmcPage.inputAddress(formRegistration);
+        dmcPage.inputName(name);
+        dmcPage.inputPhone(phone);
+        dmcPage.inputMail(mail);
+        dmcPage.inputAddress(address);
         dmcPage.clickAccept();
-        Assertions.assertTrue(dmcPage.isCorrectValue(formRegistration), "Значения не совпадают");
+        dmcPage.getFormRegistrationNameField();
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(name, dmcPage.getFormRegistrationNameField(), "Неверное имя"),
+                () -> Assertions.assertEquals(dmcPage.formatPhone(phone),
+                        dmcPage.getFormRegistrationPhoneField(), "Неверный телефон"),
+                () -> Assertions.assertEquals(mail, dmcPage.getFormRegistrationMailField(), "Неверный эмаил"),
+                () -> Assertions.assertEquals(address, dmcPage.getFormRegistrationAddressField(),
+                        "Неверный адрес")
+        );
 
         dmcPage.clickSubmitButton();
         Assertions.assertEquals("Введите корректный адрес электронной почты", dmcPage.getEmailValidateMessage(),
